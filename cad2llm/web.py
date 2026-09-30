@@ -213,6 +213,9 @@ def index():
                 ctx["answer_html"] = markdown(ctx["answer"]["text"])
         except CadError as e:
             ctx["error"] = str(e)
+        except Exception as e:  # a library bug or an unexpected file: a message, not a bare 500
+            app.logger.exception("processing %s failed", upload.filename if upload else "?")
+            ctx["error"] = f"Nie udało się przetworzyć pliku: {type(e).__name__}: {e}".rstrip(": ")
     return render_template_string(PAGE, **ctx)
 
 
