@@ -27,11 +27,18 @@ def _diameters(shape) -> dict[float, int]:
     return dict(sorted(counts.items()))
 
 
+def _volume(shape) -> float:
+    """Sum over the solids rather than shape.Volume(): cadquery 2.8 raises
+    StopIteration on a compound whose first child is an empty compound (an empty
+    sub-assembly, which some CAD exporters write). Same number otherwise."""
+    return sum(s.Volume() for s in shape.Solids())
+
+
 def _measure(shape) -> dict:
     bb = shape.BoundingBox()
     return {
         "bounding_box_mm": {"x": bb.xlen, "y": bb.ylen, "z": bb.zlen},
-        "volume_mm3": shape.Volume(),
+        "volume_mm3": _volume(shape),
         "surface_area_mm2": shape.Area(),
         "faces": len(shape.Faces()),
         "edges": len(shape.Edges()),
