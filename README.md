@@ -4,7 +4,7 @@ Upload a CAD file or drawing (**STEP/STP**, **DXF** or **PDF**), get its measure
 
 OpenAI does not accept `.step` / `.dxf` files (and a PDF drawing is best read from its exact text layer), and raw CAD text is huge and hard for a model to measure from. So the file is pre-processed locally into a compact JSON with exact measurements plus a preview PNG, and only that is sent (Responses API, `store: false`).
 
-| Format | Extracted (cadquery / ezdxf) | Preview |
+| Format | Extracted (cadquery / ezdxf / PyMuPDF) | Preview |
 |---|---|---|
 | STEP / STP | declared units (geometry normalized to mm), bounding box, volume, surface area, face/edge counts, cylinder diameters with counts, per-solid values for assemblies | isometric shaded view |
 | DXF | units (`$INSUNITS`), extents, DIMENSION values + text overrides, circle diameters, arc radii, line and polyline segment lengths, TEXT/MTEXT, layers; geometry inside blocks included | 2D drawing |
