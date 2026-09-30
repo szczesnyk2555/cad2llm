@@ -57,3 +57,23 @@ def test_not_a_step(tmp_path):
 ])
 def test_declared_units(raw, unit):
     assert declared_units(raw) == unit
+
+
+def test_pdf_shaft():
+    data, png = analyze(SAMPLES / "shaft.pdf")
+    assert data["text_layer"] and data["pages"] == 1
+    found = data["found_in_text"]
+    assert found["diameters"] == {"Ø25h6": 1, "Ø40": 1, "Ø30k6": 1}
+    assert found["threads"] == {"M10x1.5": 1}
+    assert found["tolerances"] == {"±0.1": 1}
+    assert "angles" not in found  # 1x45° is a chamfer, not an angle
+    assert "Materiał: C45 (1.0503)" in data["text"]
+    assert png[:8] == b"\x89PNG\r\n\x1a\n"
+
+
+def test_summary_formats():
+    from cad2llm.web import fmt, summary
+    assert fmt(70.23345) == "70,23" and fmt(100.0, 0) == "100" and fmt(12345.5) == "12 345,5"
+    for name in ("flange.step", "plate.dxf", "shaft.pdf"):
+        s = summary(analyze(SAMPLES / name, image=False)[0])
+        assert s["stats"] and s["groups"]

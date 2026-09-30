@@ -8,7 +8,8 @@ from . import CadError, analyze
 
 
 def main() -> int:
-    p = argparse.ArgumentParser(prog="cad2llm", description="Extract measurements from a STEP/DXF file and ask OpenAI to describe the part.")
+    sys.stdout.reconfigure(encoding="utf-8")  # Ø, ±, ° on Windows consoles
+    p = argparse.ArgumentParser(prog="cad2llm", description="Extract measurements from a STEP / DXF / PDF file and ask OpenAI to describe the part.")
     p.add_argument("file", type=Path)
     p.add_argument("--prompt", help="question for the model (default: describe the part)")
     p.add_argument("--no-image", action="store_true", help="do not render / send a preview image")
@@ -23,7 +24,7 @@ def main() -> int:
             print(json.dumps(data, indent=2, ensure_ascii=False))
             return 0
         from .llm import describe
-        print(describe(data, png, args.prompt))
+        print(describe(data, png, args.prompt)["text"])
         return 0
     except CadError as e:
         print(f"error: {e}", file=sys.stderr)

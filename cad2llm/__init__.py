@@ -1,7 +1,7 @@
-"""cad2llm - extract measurements from CAD files (STEP, DXF) and ask an OpenAI model to describe the part."""
+"""cad2llm - extract measurements from CAD files and drawings (STEP, DXF, PDF) and ask an OpenAI model to describe the part."""
 from pathlib import Path
 
-SUPPORTED = {".step": "step", ".stp": "step", ".dxf": "dxf"}
+SUPPORTED = {".step": "step", ".stp": "step", ".dxf": "dxf", ".pdf": "pdf"}
 
 
 class CadError(Exception):
@@ -14,12 +14,14 @@ def analyze(path: str | Path, image: bool = True) -> tuple[dict, bytes | None]:
     kind = SUPPORTED.get(path.suffix.lower())
     if kind is None:
         hint = " Convert DWG to DXF first." if path.suffix.lower() == ".dwg" else ""
-        raise CadError(f"Unsupported file type '{path.suffix}'. Use .step, .stp or .dxf.{hint}")
+        raise CadError(f"Unsupported file type '{path.suffix}'. Use .step, .stp, .dxf or .pdf.{hint}")
 
     if kind == "step":
         from . import step_extract as mod
-    else:
+    elif kind == "dxf":
         from . import dxf_extract as mod
+    else:
+        from . import pdf_extract as mod
     return mod.extract(path, image=image)
 
 
